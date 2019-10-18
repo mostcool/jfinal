@@ -57,6 +57,8 @@ final public class Constants {
 	private ControllerFactory controllerFactory = Const.DEFAULT_CONTROLLER_FACTORY;
 	private int configPluginOrder = Const.DEFAULT_CONFIG_PLUGIN_ORDER;
 	
+	private boolean denyAccessJsp = true;	// 默认拒绝直接访问 jsp 文件
+	
 	private ITokenCache tokenCache = null;
 	
 	/**
@@ -143,6 +145,22 @@ final public class Constants {
 	 */
 	public void setProxyFactory(ProxyFactory proxyFactory) {
 		ProxyManager.me().setProxyFactory(proxyFactory);
+	}
+	
+	/**
+	 * proxy 模块需要 JDK 环境，如果运行环境为 JRE，可以调用本配置方法支持
+	 * 
+	 * 该配置需要引入 cglib-nodep 依赖：
+	 * <pre>
+	 *   <dependency>
+   	 *     <groupId>cglib</groupId>
+   	 *     <artifactId>cglib-nodep</artifactId>
+   	 *     <version>3.2.5</version>
+	 *   </dependency>
+	 * </pre>
+	 */
+	public void setToCglibProxyFactory() {
+		setProxyFactory(new com.jfinal.ext.proxy.CglibProxyFactory());
 	}
 	
 	/**
@@ -394,6 +412,14 @@ final public class Constants {
 	
 	public int getFreeMarkerTemplateUpdateDelay() {
 		return freeMarkerTemplateUpdateDelay;
+	}
+	
+	public void setDenyAccessJsp(boolean denyAccessJsp) {
+		this.denyAccessJsp = denyAccessJsp;
+	}
+	
+	public boolean getDenyAccessJsp() {
+		return denyAccessJsp;
 	}
 }
 
