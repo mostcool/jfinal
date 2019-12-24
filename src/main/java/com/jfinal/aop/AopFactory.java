@@ -75,26 +75,31 @@ public class AopFactory {
 			return (T)ret;
 		}
 		
-		ret = singletonTl.get().get(targetClass);
-		if (ret != null) {		// 发现循环注入
-			return (T)ret;
+		HashMap<Class<?>, Object> map = singletonTl.get();
+		int size = map.size();
+		if (size > 0) {
+			ret = map.get(targetClass);
+			if (ret != null) {		// 发现循环注入
+				return (T)ret;
+			}
 		}
 		
 		synchronized (this) {
-			ret = singletonCache.get(targetClass);
-			if (ret == null) {
-				try {
+			try {
+				ret = singletonCache.get(targetClass);
+				if (ret == null) {
 					ret = createObject(targetClass);
-					singletonTl.get().put(targetClass, ret);
+					map.put(targetClass, ret);
 					doInject(targetClass, ret);
 					singletonCache.put(targetClass, ret);
-				} finally {
+				}
+				return (T)ret;
+			} finally {
+				if (size == 0) {		// 仅顶层才需要 remove()
 					singletonTl.remove();
 				}
 			}
 		}
-		
-		return (T)ret;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -102,10 +107,12 @@ public class AopFactory {
 		Object ret;
 		
 		HashMap<Class<?>, Object> map = prototypeTl.get();
-		if (map.size() > 0) {
+		int size = map.size();
+		if (size > 0) {
 			ret = map.get(targetClass);
 			if (ret != null) {		// 发现循环注入
-				return (T)ret;
+				// return (T)ret;
+				return (T)createObject(targetClass);
 			}
 		}
 		
@@ -113,11 +120,12 @@ public class AopFactory {
 			ret = createObject(targetClass);
 			map.put(targetClass, ret);
 			doInject(targetClass, ret);
+			return (T)ret;
 		} finally {
-			map.clear();
+			if (size == 0) {		// 仅顶层才需要 clear()
+				map.clear();
+			}
 		}
-		
-		return (T)ret;
 	}
 	
 	public <T> T inject(T targetObject) {
@@ -209,7 +217,10 @@ public class AopFactory {
 		return injectSuperClass;
 	}
 	
-	public AopFactory addSingletonObject(Object singletonObject) {
+	public AopFactory addSingletonObject(Class<?> type, Object singletonObject) {
+		if (type == null) {
+			throw new IllegalArgumentException("type can not be null");
+		}
 		if (singletonObject == null) {
 			throw new IllegalArgumentException("singletonObject can not be null");
 		}
@@ -217,12 +228,21 @@ public class AopFactory {
 			throw new IllegalArgumentException("singletonObject can not be Class type");
 		}
 		
-		Class<?> type = getUsefulClass(singletonObject.getClass());
+		if ( ! (type.isAssignableFrom(singletonObject.getClass())) ) {
+			throw new IllegalArgumentException(singletonObject.getClass().getName() + " can not cast to " + type.getName());
+		}
+		
+		// Class<?> type = getUsefulClass(singletonObject.getClass());
 		if (singletonCache.putIfAbsent(type, singletonObject) != null) {
 			throw new RuntimeException("Singleton object already exists for type : " + type.getName());
 		}
 		
 		return this;
+	}
+	
+	public AopFactory addSingletonObject(Object singletonObject) {
+		Class<?> type = getUsefulClass(singletonObject.getClass());
+		return addSingletonObject(type, singletonObject);
 	}
 	
 	public synchronized <T> AopFactory addMapping(Class<T> from, Class<? extends T> to) {
@@ -268,18 +288,6 @@ public class AopFactory {
 		}
 	}
 }
-
-
-/* 未来考虑不再支持对象的 Aop，只支持 Class 的 Aop
-public <T> T get(T targetObject) {
-	try {
-		inject(injectDepth, targetObject.getClass(), targetObject);
-		return targetObject;
-	}
-	catch (Exception e) {
-		throw new RuntimeException(e);
-	}
-}*/
 
 
 
