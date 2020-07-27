@@ -55,6 +55,12 @@ public class JFinalJson extends Json {
 		
 		JsonResult ret = TL.get();
 		try {
+			
+			// 重入型转换场景，需要新建对象使用
+			if (ret.isInUse()) {
+				ret = new JsonResult();
+			}
+			
 			// 优先使用对象级的属性 datePattern, 然后才是全局性的 defaultDatePattern
 			String dp = datePattern != null ? datePattern : getDefaultDatePattern();
 			ret.init(dp, timestampPattern);
@@ -145,10 +151,22 @@ public class JFinalJson extends Json {
 	/**
 	 * 配置将 Model、Record 字段名转换为驼峰格式
 	 * 
-	 * 转换用到了 StrKit.toCamelCase(fieldName, true)，具体转换规则参考
-	 * 该方法注释中的说明，注意字段名首先会被转换成小写字母，如果要改变转换规则
-	 * 可以使用 setModelAndRecordFieldNameConverter(Function func)
-	 * 定制自己的转换函数
+	 * <pre>
+	 * toLowerCaseAnyway 参数的含义：
+	 * 1：true 值无条件将字段先转换成小写字母。适用于 oracle 这类字段名是大写字母的数据库
+	 * 2：false 值只在出现下划线时将字段转换成小写字母。适用于 mysql 这类字段名是小写字母的数据库
+	 * </pre>
+	 */
+	public static void setModelAndRecordFieldNameToCamelCase(boolean toLowerCaseAnyway) {
+		JFinalJsonKit.setModelAndRecordFieldNameToCamelCase(toLowerCaseAnyway);
+	}
+	
+	/**
+	 * 配置将 Model、Record 字段名转换为驼峰格式
+	 * 
+	 * 先将字段名无条件转换成小写字母，然后再转成驼峰格式，适用于 oracle 这类字段名是大写字母的数据库
+	 * 
+	 * 如果是 mysql 数据库，建议使用: setModelAndRecordFieldNameToCamelCase(false);
 	 */
 	public static void setModelAndRecordFieldNameToCamelCase() {
 		JFinalJsonKit.setModelAndRecordFieldNameToCamelCase();

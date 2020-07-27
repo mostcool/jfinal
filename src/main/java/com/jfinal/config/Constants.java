@@ -197,6 +197,7 @@ final public class Constants {
 	}
 	
 	public ControllerFactory getControllerFactory() {
+		controllerFactory.setInjectDependency(getInjectDependency());
 		return controllerFactory;
 	}
 	

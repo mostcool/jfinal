@@ -583,23 +583,36 @@ public class JFinalJsonKit {
 		
 		String datePattern;
 		String timestampPattern;
+		boolean inUse = false;
 		
 		public void init(String datePattern, String timestampPattern) {
 			this.datePattern = datePattern;
 			this.timestampPattern = timestampPattern;
+			inUse = true;
 		}
 		
-		public String toString() {
-			return sb.toString();
+		// 用来判断当前是否处于重入型转换状态，如果为 true，则要使用 new JsonResult()
+		public boolean isInUse() {
+			return inUse;
 		}
 		
 		public void clear() {
+			inUse = false;
+			
 			// 释放空间占用过大的缓存
 			if (sb.length() > maxBufferSize) {
 				sb = new StringBuilder(Math.max(1024, maxBufferSize / 2));
 			} else {
 				sb.setLength(0);
 			}
+		}
+		
+		public String toString() {
+			return sb.toString();
+		}
+		
+		public int length() {
+			return sb.length();
 		}
 		
 		public void addChar(char ch) {
@@ -785,15 +798,27 @@ public class JFinalJsonKit {
 	/**
 	 * 配置将 Model、Record 字段名转换为驼峰格式
 	 * 
-	 * 转换用到了 StrKit.toCamelCase(fieldName, true)，具体转换规则参考
-	 * 该方法注释中的说明，注意字段名首先会被转换成小写字母，如果要改变转换规则
-	 * 可以使用 setModelAndRecordFieldNameConverter(Function func)
-	 * 定制自己的转换函数
+	 * <pre>
+	 * toLowerCaseAnyway 参数的含义：
+	 * 1：true 值无条件将字段先转换成小写字母。适用于 oracle 这类字段名是大写字母的数据库
+	 * 2：false 值只在出现下划线时将字段转换成小写字母。适用于 mysql 这类字段名是小写字母的数据库
+	 * </pre>
+	 */
+	public static void setModelAndRecordFieldNameToCamelCase(boolean toLowerCaseAnyway) {
+		modelAndRecordFieldNameConverter = (fieldName) -> {
+			return StrKit.toCamelCase(fieldName, toLowerCaseAnyway);
+		};
+	}
+	
+	/**
+	 * 配置将 Model、Record 字段名转换为驼峰格式
+	 * 
+	 * 先将字段名无条件转换成小写字母，然后再转成驼峰格式，适用于 oracle 这类字段名是大写字母的数据库
+	 * 
+	 * 如果是 mysql 数据库，建议使用: setModelAndRecordFieldNameToCamelCase(false);
 	 */
 	public static void setModelAndRecordFieldNameToCamelCase() {
-		modelAndRecordFieldNameConverter = (fieldName) -> {
-			return StrKit.toCamelCase(fieldName, true);
-		};
+		setModelAndRecordFieldNameToCamelCase(true);
 	}
 	
 	public static void setToJsonFactory(Function<Object, ToJson<?>> toJsonFactory) {

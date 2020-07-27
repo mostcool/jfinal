@@ -16,7 +16,10 @@
 
 package com.jfinal.json;
 
+import java.lang.reflect.Type;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.jfinal.plugin.activerecord.Record;
@@ -29,6 +32,14 @@ public class FastJson extends Json {
 	static {
 		// 支持序列化 ActiveRecord 的 Record 类型
 		SerializeConfig.getGlobalInstance().put(Record.class, new FastJsonRecordSerializer());
+		
+		// 完全禁用 autoType，提升安全性
+		try {
+			ParserConfig.getGlobalInstance().setSafeMode(true);
+		} catch (Exception e) {
+			// 老版本 fastjson 无 setSafeMode(boolean) 方法
+			com.jfinal.kit.LogKit.logNothing(e);
+		}
 	}
 	
 	public static FastJson getJson() {
@@ -47,6 +58,14 @@ public class FastJson extends Json {
 	
 	public <T> T parse(String jsonString, Class<T> type) {
 		return JSON.parseObject(jsonString, type);
+	}
+	
+	public static void setSafeMode(boolean safeMode) {
+		ParserConfig.getGlobalInstance().setSafeMode(safeMode);
+	}
+	
+	public static void addSerializer(Type type, ObjectSerializer value) {
+		SerializeConfig.getGlobalInstance().put(type, value);
 	}
 }
 
