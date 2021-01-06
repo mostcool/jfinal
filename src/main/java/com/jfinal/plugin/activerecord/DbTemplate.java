@@ -18,8 +18,11 @@ package com.jfinal.plugin.activerecord;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * DbTemplate
@@ -54,13 +57,11 @@ public class DbTemplate {
 		this.sqlPara = db.getSqlParaByString(content, paras);
 	}
 	
-	/*
-	 * 下一版本根据需求强度考虑添加此方法
-	 * TODO 这里要严格测试，因为没有 Map data 值，所以 getSqlPara(...) 不一定可以正常工作
-	public DbTemplate(DbPro db, String key) {
-		this.db = db;
-		this.sqlPara = db.getSqlPara(key);
-	}*/
+	public SqlPara getSqlPara() {
+		return sqlPara;
+	}
+	
+	// ---------
 	
 	public List<Record> find() {
 		return db.find(sqlPara);
@@ -84,6 +85,12 @@ public class DbTemplate {
 	
 	// ---------
 	
+	public void each(Function<Record, Boolean> func) {
+		db.each(func, sqlPara.getSql(), sqlPara.getPara());
+	}
+	
+	// ---------
+	
 	public int delete() {
 		return db.delete(sqlPara.getSql(), sqlPara.getPara());
 	}
@@ -100,12 +107,28 @@ public class DbTemplate {
 		return db.queryLong(sqlPara.getSql(), sqlPara.getPara());
 	}
 	
+	public Double queryDouble() {
+		return db.queryDouble(sqlPara.getSql(), sqlPara.getPara());
+	}
+	
 	public BigDecimal queryBigDecimal() {
 		return db.queryBigDecimal(sqlPara.getSql(), sqlPara.getPara());
 	}
 	
 	public BigInteger queryBigInteger() {
 		return db.queryBigInteger(sqlPara.getSql(), sqlPara.getPara());
+	}
+	
+	public Date queryDate() {
+		return db.queryDate(sqlPara.getSql(), sqlPara.getPara());
+	}
+	
+	public Timestamp queryTimestamp() {
+		return db.queryTimestamp(sqlPara.getSql(), sqlPara.getPara());
+	}
+	
+	public Boolean queryBoolean() {
+		return db.queryBoolean(sqlPara.getSql(), sqlPara.getPara());
 	}
 	
 	// ---------

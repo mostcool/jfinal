@@ -30,8 +30,10 @@ import com.jfinal.json.Json;
  *    Okv para = Okv.by("id", 123);
  *    User user = user.findFirst(getSqlPara("find", para));
  */
-@SuppressWarnings({"serial", "rawtypes", "unchecked"})
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class Okv extends LinkedHashMap {
+	
+	private static final long serialVersionUID = 485147547719011382L;
 	
 	public Okv() {
 	}
@@ -151,6 +153,24 @@ public class Okv extends LinkedHashMap {
 	
 	public boolean equals(Object okv) {
 		return okv instanceof Okv && super.equals(okv);
+	}
+	
+	public Okv keep(String... keys) {
+		if (keys != null && keys.length > 0) {
+			Okv newOkv = Okv.create();
+			for (String k : keys) {
+				if (containsKey(k)) {	// 避免将并不存在的变量存为 null
+					newOkv.put(k, get(k));
+				}
+			}
+			
+			clear();
+			putAll(newOkv);
+		} else {
+			clear();
+		}
+		
+		return this;
 	}
 }
 

@@ -27,8 +27,10 @@ import com.jfinal.json.Json;
  *    Kv para = Kv.by("id", 123);
  *    User user = user.findFirst(getSqlPara("find", para));
  */
-@SuppressWarnings({"serial", "rawtypes", "unchecked"})
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class Kv extends HashMap {
+	
+	private static final long serialVersionUID = -6086130186405306902L;
 	
 	public Kv() {
 	}
@@ -148,6 +150,24 @@ public class Kv extends HashMap {
 	
 	public boolean equals(Object kv) {
 		return kv instanceof Kv && super.equals(kv);
+	}
+	
+	public Kv keep(String... keys) {
+		if (keys != null && keys.length > 0) {
+			Kv newKv = Kv.create();
+			for (String k : keys) {
+				if (containsKey(k)) {	// 避免将并不存在的变量存为 null
+					newKv.put(k, get(k));
+				}
+			}
+			
+			clear();
+			putAll(newKv);
+		} else {
+			clear();
+		}
+		
+		return this;
 	}
 }
 

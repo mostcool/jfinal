@@ -103,8 +103,16 @@ public abstract class Controller {
 		return rawData;
 	}
 	
+	public String getControllerPath() {
+		return action.getControllerPath();
+	}
+	
+	/**
+	 * 该方法已改名为 getControllerPath()
+	 */
+	@Deprecated
 	public String getControllerKey() {
-		return action.getControllerKey();
+		return action.getControllerPath();
 	}
 	
 	public String getViewPath() {
@@ -167,7 +175,7 @@ public abstract class Controller {
 	public String getPara(String name) {
 		// return request.getParameter(name);
 		String result = request.getParameter(name);
-		return "".equals(result) ? null : result;
+		return result != null && result.length() != 0 ? result : null;
 	}
 	
 	/**
@@ -178,7 +186,7 @@ public abstract class Controller {
 	 */
 	public String getPara(String name, String defaultValue) {
 		String result = request.getParameter(name);
-		return result != null && !"".equals(result) ? result : defaultValue;
+		return result != null && result.length() != 0 ? result : defaultValue;
 	}
 	
 	/**
@@ -714,7 +722,7 @@ public abstract class Controller {
 	 */
 	public String getPara(int index, String defaultValue) {
 		String result = getPara(index);
-		return result != null && !"".equals(result) ? result : defaultValue;
+		return result != null && result.length() != 0 ? result : defaultValue;
 	}
 	
 	/**
@@ -968,23 +976,23 @@ public abstract class Controller {
 	 * @param tokenName the token name used in view
 	 * @param secondsOfTimeOut the seconds of time out, secondsOfTimeOut >= Const.MIN_SECONDS_OF_TOKEN_TIME_OUT
 	 */
-	public void createToken(String tokenName, int secondsOfTimeOut) {
-		com.jfinal.token.TokenManager.createToken(this, tokenName, secondsOfTimeOut);
+	public String createToken(String tokenName, int secondsOfTimeOut) {
+		return com.jfinal.token.TokenManager.createToken(this, tokenName, secondsOfTimeOut);
 	}
 	
 	/**
 	 * Create a token with default token name and with default seconds of time out.
 	 */
-	public void createToken() {
-		createToken(Const.DEFAULT_TOKEN_NAME, Const.DEFAULT_SECONDS_OF_TOKEN_TIME_OUT);
+	public String createToken() {
+		return createToken(Const.DEFAULT_TOKEN_NAME, Const.DEFAULT_SECONDS_OF_TOKEN_TIME_OUT);
 	}
 	
 	/**
 	 * Create a token with default seconds of time out.
 	 * @param tokenName the token name used in view
 	 */
-	public void createToken(String tokenName) {
-		createToken(tokenName, Const.DEFAULT_SECONDS_OF_TOKEN_TIME_OUT);
+	public String createToken(String tokenName) {
+		return createToken(tokenName, Const.DEFAULT_SECONDS_OF_TOKEN_TIME_OUT);
 	}
 	
 	/**

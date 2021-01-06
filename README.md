@@ -15,7 +15,7 @@ JFinal 是基于 Java 语言的极速 WEB + ORM 框架，其核心设计目标�
 - 多视图支持，支持 Enjoy、FreeMarker、JSP、Velocity
 - 强大的 Validator 后端校验功能
 - 功能齐全，拥有传统 SSH 框架的绝大部分核心功能
-- 体积小仅 723 KB，并且无第三方依赖
+- 体积小仅 777 KB，并且无第三方依赖
 
 **JFinal 极速开发微信公众号欢迎你的加入: JFinal**
 
@@ -25,7 +25,7 @@ JFinal 是基于 Java 语言的极速 WEB + ORM 框架，其核心设计目标�
 <dependency>
     <groupId>com.jfinal</groupId>
     <artifactId>jfinal</artifactId>
-    <version>4.9.01</version>
+    <version>4.9.06</version>
 </dependency>
 ```
 
@@ -128,10 +128,12 @@ public class BlogInterceptor implements Interceptor {
 ```
 
 ## 更多支持
-- JFinal 官方网站  [http://www.jfinal.com](http://www.jfinal.com/) 
+- JFinal 官方网站  [https://jfinal.com](https://jfinal.com/) 
 - 扫码关注官方微信公众号，第一时间尊享最新动向  
 
-![JFinal](http://www.jfinal.com/assets/img/jfinal_weixin_service_qr_code_150.jpg) 
+![JFinal](https://jfinal.com/assets/img/jfinal_weixin_service_qr_code_150.jpg) 
+
+
 
 
 

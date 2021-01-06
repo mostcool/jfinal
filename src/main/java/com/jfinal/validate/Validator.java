@@ -30,6 +30,7 @@ import com.jfinal.core.Controller;
 import com.jfinal.kit.LogKit;
 import com.jfinal.kit.Ret;
 import com.jfinal.kit.StrKit;
+import com.jfinal.kit.TimeKit;
 
 /**
  * Validator.
@@ -166,10 +167,18 @@ public abstract class Validator implements Interceptor {
 	}
 	
 	/**
-	 * Return the controller key of this action.
+	 * Return the controller path of this action.
 	 */
+	protected String getControllerPath() {
+		return invocation.getControllerPath();
+	}
+	
+	/**
+	 * 该方法已改名为 getControllerPath()
+	 */
+	@Deprecated
 	protected String getControllerKey() {
-		return invocation.getControllerKey();
+		return invocation.getControllerPath();
 	}
 	
 	/**
@@ -408,7 +417,7 @@ public abstract class Validator implements Interceptor {
 			return ;
 		}
 		try {
-			new SimpleDateFormat(getDatePattern()).parse(value.trim());	// Date temp = Date.valueOf(value); 为了兼容 64位 JDK
+			TimeKit.getSimpleDateFormat(getDatePattern()).parse(value.trim());	// Date temp = Date.valueOf(value); 为了兼容 64位 JDK
 		}
 		catch (Exception e) {
 			addError(errorKey, errorMessage);
@@ -425,7 +434,7 @@ public abstract class Validator implements Interceptor {
 			return ;
 		}
 		try {
-			Date temp = new SimpleDateFormat(getDatePattern()).parse(value.trim());	// Date temp = Date.valueOf(value); 为了兼容 64位 JDK
+			Date temp = TimeKit.getSimpleDateFormat(getDatePattern()).parse(value.trim());	// Date temp = Date.valueOf(value); 为了兼容 64位 JDK
 			if (temp.before(min) || temp.after(max)) {
 				addError(errorKey, errorMessage);
 			}
@@ -441,7 +450,7 @@ public abstract class Validator implements Interceptor {
 	protected void validateDate(String field, String min, String max, String errorKey, String errorMessage) {
 		// validateDate(field, Date.valueOf(min), Date.valueOf(max), errorKey, errorMessage);  为了兼容 64位 JDK
 		try {
-			SimpleDateFormat sdf = new SimpleDateFormat(getDatePattern());
+			SimpleDateFormat sdf = TimeKit.getSimpleDateFormat(getDatePattern());
 			validateDate(field, sdf.parse(min.trim()), sdf.parse(max.trim()), errorKey, errorMessage);
 		} catch (Exception e) {
 			addError(errorKey, errorMessage);
